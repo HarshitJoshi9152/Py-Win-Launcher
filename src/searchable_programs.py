@@ -31,7 +31,7 @@ def get_all_progs_list():
 	""" get_all_progs_list
 			returns a list of tuples with items as ($name_of_prog, $path_of_executable)
 	"""
-	lst = []
+	lst = {}
 	for dirpath, _dirnames, files in os.walk(lnks_dir_path):
 			# print(f'Found directory: {dirpath}')
 			# files dont include folders !
@@ -49,7 +49,7 @@ def get_all_progs_list():
 							exe_path = get_real_path(abs_path)
 						except ValueError as noValidPathFound:
 							pass
-					lst.append((file_name,exe_path ))
+					lst[file_name] = exe_path
 					# if exe_path == "":
 					# 	print(abs_path)
 					# print(type(error)) -> <class 'OSError'> | how to people handle these logs ? like how do you get to know if its atually a string, tuple or a dict ???
@@ -63,6 +63,11 @@ def launch_app(path):
 	return subprocess.Popen(cli, shell=True)
 	# killing the shell that spawns the process | NOT
 	# process.kill(); ok so now .kill kills it ? ig it happens when its a terminal command not an exe ? idk
+
+	#Attributes:
+	#|      stdin, stdout, stderr, pid, returncode
+	#Methods:
+	#|			kill, terminate, communicate, send_signal, poll
 
 if __name__ == "__main__":
 	# first arg is name of file !

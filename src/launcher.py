@@ -8,7 +8,7 @@ import time
 
 file_to_run = "./main.py"
 cli = ["python", file_to_run]
-files_to_watch = ["./main.py", "./layout.py"]
+files_to_watch = ["./main.py", "./layout.py", "./searchable_programs.py"]
 
 # watch file for changes
 process = None;
