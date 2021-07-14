@@ -12,11 +12,13 @@ from searchable_programs import get_all_progs_list, launch_app
 
 programs_list = get_all_progs_list()
 #  currently only showing programs whose exe_paths can be found
-names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p] != ""]
+default_names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p] != ""]
+
+current_names = default_names.copy()
 
 # creating the window
 # window = sg.Window("Hello World", layout=layout)
-window = sg.Window("Hello World", layout=layout)
+window = sg.Window("Py-Win-Launcher !", layout=layout)
 
 while True:
 	event, values = window.read();
@@ -26,8 +28,14 @@ while True:
 			break
 	elif event == "app_search_input":
 		# call get_all_progs_list & update the gui
-		window["-out-"].update(values.get("app_search_input"), background_color="red")
-		# window["-select-box-"].update(names)
+		val = values.get("app_search_input")
+		if val == "":
+			current_names = default_names
+		else:
+			# search the names and find the matching ones !
+			current_names = [n for n in default_names if n.lower().startswith(val.lower())]
+		window["-select-box-"].update(current_names)
+		
 	elif event == "-select-box-":
 		# user has selected an app !
 		sel = values.get("-select-box-")[0]
@@ -41,7 +49,7 @@ while True:
 		if not rt_code == 0:
 			# program did not run correctly !
 			# http://youtube.com/watch?v=e1TR9Wq0QRs
-			sg.popup(f"Could not open {sel} !\n<check logs for more info>")
+			sg.popup(f"Could not open {sel} {rt_code}!\n<check logs for more info>")
 	elif event == "OK":
 		print(f"Hello {values.get('_name')} !")
 	elif event == "debug":
