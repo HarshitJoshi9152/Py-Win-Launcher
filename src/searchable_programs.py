@@ -1,5 +1,8 @@
 import sys
 import os
+import subprocess
+from exp import get_real_path
+
 
 r'''
 windows start menu uses folders
@@ -28,48 +31,43 @@ def get_all_progs_list():
 	""" get_all_progs_list
 			returns a list of tuples with items as ($name_of_prog, $path_of_executable)
 	"""
-	# os.listdir -> lists all files in dir 
-	# os.walk ?
-	# os.path.join
-	# os.readlink
-
 	lst = []
-
 	for dirpath, _dirnames, files in os.walk(lnks_dir_path):
 			# print(f'Found directory: {dirpath}')
 			# files dont include folders !
 			for file_name in files:
+					if not file_name.endswith(".lnk"):
+						continue
 					abs_path = os.path.join(dirpath, file_name)
-					print(abs_path)
+					# print(abs_path)
+					exe_path = ""
 					try:
 						exe_path = os.readlink(abs_path)
-						# ok so i cant manage to read the real path of .lnk sym link files using
-						# os.readlink or os.path.realpath
-						# btw this must be very interesting
-						# https://stackoverflow.com/a/28952464/9596267
-						lst.append((file_name, exe_path))
-					except OSError as error:
-						# should be OSError [WinError 4390]
-						'''
-						# [WinError 4390] not a reparse point !
-						A reparse point is what linux calls a symbolic link.  It is actually similar to
-						a shortcut or link that people use all the time.  An icon on your desktop is
-						not really the program that it launches - it is simply a file that points to
-						that program and tells it to launch when you click it.  A reparse point is the
-						same concept except at the OS level instead of the user level.  In Windows 7,
-						the easiest way to see an example of this is to open a command prompt and type
-						dir /a and press enter.  You will see several entries that say junction and it
-						will show you what they point to (junction point is another name for reparse
-						point)
-						'''
-						print(file_name, error)
-						pass
-						# print(type(error)) -> <class 'OSError'> | how to people handle these logs ? like how do you get to know if its atually a string, tuple or a dict ???
-						# todo handle NotImplementedError
+						# print((file_name,exe_path ))
+					except OSError as err:
+						try:
+							exe_path = get_real_path(abs_path)
+						except ValueError as noValidPathFound:
+							pass
+					lst.append((file_name,exe_path ))
+					# if exe_path == "":
+					# 	print(abs_path)
+					# print(type(error)) -> <class 'OSError'> | how to people handle these logs ? like how do you get to know if its atually a string, tuple or a dict ???
 	return lst
+
+def launch_app(path):
+	#? this needs path of a exe file ! RETURNS <subprocess.Popen object>
+	cli = [path];
+	# using shell=True to not allow launcher to close the app once opened !
+	# * or os.system os.startfile !
+	return subprocess.Popen(cli, shell=True)
+	# killing the shell that spawns the process | NOT
+	# process.kill(); ok so now .kill kills it ? ig it happens when its a terminal command not an exe ? idk
 
 if __name__ == "__main__":
 	# first arg is name of file !
 	if sys.argv[1] == "test":
 		print("testing !")
 		print(get_all_progs_list())
+		# p = launch_app(R"C:\Program Files\Parsec\parsecd.exe")
+		# print(p)
