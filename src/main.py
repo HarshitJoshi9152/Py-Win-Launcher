@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import PySimpleGUI as sg
+import time
 
 # sg.theme('DarkAmber')
 sg.theme('darkblue13')
@@ -32,14 +33,21 @@ while True:
 		sel = values.get("-select-box-")[0]
 		exe_path = programs_list[f'{sel}.lnk']
 		sg.popup(f"opening {sel} !\n{exe_path}!")
+
 		process = launch_app(exe_path)
-		print(process.returncode) # why always none !!!!
+		# we need to call .poll because .poll() SETS & returns the return code
+		time.sleep(1) # i suspected right !!!!! it doesnt return till then !
+		rt_code = process.poll()
+		if not rt_code == 0:
+			# program did not run correctly !
+			# http://youtube.com/watch?v=e1TR9Wq0QRs
+			sg.popup(f"Could not open {sel} !\n<check logs for more info>")
 	elif event == "OK":
 		print(f"Hello {values.get('_name')} !")
 	elif event == "debug":
 		# now we dont need to do window.Element to target an element !
 		window.Element("debug_log").update(f"event: {event}, values: {str(values)}")
-		print(event);
+		print(event)
 		print(values)
 	else:
 		pass

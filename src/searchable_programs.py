@@ -56,14 +56,24 @@ def get_all_progs_list():
 	return lst
 
 def launch_app(path):
+	"""launches the exe whose path is provided
+		 returns <subprocess.Popen object>
+		 & uses `subprocess.Popen`
+	Args:
+			path (src): path of exe to be launched
+	"""
+
+	#!well os.system returns the code on first try so maybe try that ? BUT THERE IS AN UGLY NOT WORKING MSG 
+	#! MAYBE WE DONT HAVE TO IMPLEMENT THE MSG OURSELF LMAO !
+
+	# * use subprocess.Popen or os.system os.startfile !
 	#? this needs path of a exe file ! RETURNS <subprocess.Popen object>
-	cli = [path];
 	# using shell=True to not allow launcher to close the app once opened !
-	# * or os.system os.startfile !
+	cli = [path];
+	# print(cli)
 	return subprocess.Popen(cli, shell=True)
 	# killing the shell that spawns the process | NOT
 	# process.kill(); ok so now .kill kills it ? ig it happens when its a terminal command not an exe ? idk
-
 	#Attributes:
 	#|      stdin, stdout, stderr, pid, returncode
 	#Methods:
