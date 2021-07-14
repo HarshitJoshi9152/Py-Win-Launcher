@@ -4,7 +4,8 @@ import PySimpleGUI as sg
 import time
 
 # sg.theme('DarkAmber')
-sg.theme('darkblue13')
+# sg.theme('darkblue13')
+sg.theme('darkred')
 # sg.theme_previewer()
 
 from layout import layout
@@ -18,7 +19,16 @@ current_names = default_names.copy()
 
 # creating the window
 # window = sg.Window("Hello World", layout=layout)
-window = sg.Window("Py-Win-Launcher !", layout=layout)
+window = sg.Window("Py-Win-Launcher !",
+									layout,
+									return_keyboard_events=True,
+									font="fixedsys 18",
+									# dont use it because then it will always say on top , even whem it makes a popup
+									# keep_on_top=True,
+									)
+
+# todo: sg.Window() read all params, finalize, location, font
+# window.TKroot.focus_force() # doesnt work 
 
 while True:
 	event, values = window.read();
@@ -44,23 +54,42 @@ while True:
 
 		process = launch_app(exe_path)
 		# we need to call .poll because .poll() SETS & returns the return code
-		time.sleep(1) # i suspected right !!!!! it doesnt return till then !
+		# time.sleep(0.5) # i suspected right !!!!! it doesnt return till then !
+		# # ! sleep call is still not perfect apps can take longer and it will still be none!
+		# rt_code = None
+		# while rt_code == None:
+		# 	time.sleep(1)
+		# 	rt_code = process.poll()
+		process.wait()
 		rt_code = process.poll()
 		if not rt_code == 0:
+			#! got 255 but it still worked mechakeys ?
 			# program did not run correctly !
-			# http://youtube.com/watch?v=e1TR9Wq0QRs
 			sg.popup(f"Could not open {sel} {rt_code}!\n<check logs for more info>")
-	elif event == "OK":
-		print(f"Hello {values.get('_name')} !")
-	elif event == "debug":
-		# now we dont need to do window.Element to target an element !
-		window.Element("debug_log").update(f"event: {event}, values: {str(values)}")
-		print(event)
-		print(values)
 	else:
-		pass
-		# print(event);
-		# print(values)
+		# keyboard events, usable coz we have set return_keyboard_events=True
+		if len(event) == 1:
+			window["-out-"].update(value='%s - %s' % (event, ord(event)))
+			# ! ok here we should just add these chars to search bar input & focus it !
+		else:
+			# Down:40, Up:38, Left:37, Right:39, MouseWheel:Up, MouseWheel:Down
+			window["-out-"].update(f"{event}")
 
 print("EXITING !")
 window.close();
+
+
+"""
+CHANGELOG
+
+gui changes, font, element removed
+	fixedsys font looks cool !
+encounted return code problems, not responding problems Fixed all !
+found a way to get keyboard input
+
+
+to add
+
+scroll currently_focused_app using Down and Up
+ctrl + `+/-` to adjust font size !
+"""

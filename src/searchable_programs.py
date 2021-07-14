@@ -70,7 +70,7 @@ def launch_app(path):
 	#? this needs path of a exe file ! RETURNS <subprocess.Popen object>
 	# using shell=True to not allow launcher to close the app once opened !
 	cli = [path];
-	# print(cli)
+	# if i say shell=True i will see the logs in the shell window when using launcher.py
 	return subprocess.Popen(cli, shell=True)
 	# killing the shell that spawns the process | NOT
 	# process.kill(); ok so now .kill kills it ? ig it happens when its a terminal command not an exe ? idk

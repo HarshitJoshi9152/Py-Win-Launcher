@@ -8,12 +8,12 @@ names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p]
 layout = [
 	[sg.Text("App launcher !")],
 	[sg.In(key="app_search_input", enable_events=True)],
-	[sg.Listbox(names, size=(40, len(names)), key='-select-box-', enable_events=True)],
+	[sg.Listbox(names, size=(44, len(names)), key='-select-box-', enable_events=True)],
 	# [sg.FileBrowse(key="file_name", enable_events=True)],
 	# [sg.Button("OK"), sg.Button("debug")],
 	# [sg.Text('_'*40)], # horizontal_seperator
 	# ? ok so out size is equal to the original text size unless explicity stated
-	# [sg.Text("Output :"), sg.Text("", key="-out-", size=(40, 2))],
+	[sg.Text("Output :"), sg.Text("", key="-out-", size=(40, 2))],
 	# [sg.Text("Default value !",size=(40,4), key="debug_log")],
 ]
 
