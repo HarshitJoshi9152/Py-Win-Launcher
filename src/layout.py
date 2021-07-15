@@ -1,4 +1,6 @@
+from sys import winver
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import Window
 from searchable_programs import get_all_progs_list
 
 programs_list = get_all_progs_list()
@@ -6,7 +8,7 @@ programs_list = get_all_progs_list()
 names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p] != ""]
 
 layout = [
-	[sg.Text("App launcher !")],
+	[sg.Text("App launcher !", key="head")],
 	[sg.In(key="app_search_input", enable_events=True)],
 	[sg.Listbox(names, size=(44, len(names)), key='-select-box-', enable_events=True)],
 	# [sg.FileBrowse(key="file_name", enable_events=True)],
