@@ -18,6 +18,9 @@ default_names = [p.replace(".lnk", "") for p in programs_list.keys() if programs
 
 current_names = default_names.copy()
 
+# val:names_list | WORKS !
+scroll_state_names = {}
+
 # creating the window
 # window = sg.Window("Hello World", layout=layout)
 window = sg.Window("Py-Win-Launcher !",
@@ -34,7 +37,7 @@ window = sg.Window("Py-Win-Launcher !",
 # window.TKroot.focus_force() # doesnt work 
 
 buffer = []
-buffer_max_len = 2
+buffer_max_len = 6
 def update_buffer(key):
 	global buffer
 	if len(buffer) >= buffer_max_len:
@@ -45,6 +48,7 @@ def query_buffer(keys_lst):
 	global buffer
 	return keys_lst == buffer[len(buffer) - len(keys_lst):]
 
+size = 18
 def update_font(font):
 	# elm_ids = ["app_search_input", "-select-box-", "-out-"]
 	# for id in elm_ids:
@@ -53,7 +57,25 @@ def update_font(font):
 	id = "head"
 	window[id].update(window[id].get(), font=font)
 
-size = 18
+# but this makes the app go not responding !
+def start_app(exe_path):
+	# ! DAMN PERFECT EXAMPLE OF BLOCKING !
+	# sg.popup(f"opening {sel} !\n{exe_path}!")
+	# ? show app icon=base64_icon_str ?
+	sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
+	# sg.SystemTray.notify(f"opening {sel}", exe_path)
+	# ! how do i make this think non blocking
+
+	# p = Thread(target=sg.SystemTray.notify, args=[f"opening {sel}", exe_path])
+	# p.start()
+	
+	process = launch_app(exe_path)
+	process.wait()
+	rt_code = process.poll()
+	if not rt_code == 0:
+		# program did not run correctly !
+		sg.popup(f"Could not open {sel} {rt_code}!\n<check logs for more info>")
+
 
 while True:
 	event, values = window.read(); # is there any advantage to using timeout ?
@@ -61,10 +83,15 @@ while True:
 	"""event: `file_name` for update in FileBrowse field with `key=file_name` ! | on enable_events=True """
 	if event == sg.WIN_CLOSED:
 			break
+
 	elif event == "app_search_input":
 		# call get_all_progs_list & update the gui
-		val = values.get("app_search_input")
-		if val == "":
+		val = values.get("app_search_input").strip()
+		if scroll_state_names.get(val):
+			current_names = scroll_state_names[val]
+			if (scroll_state_names[val] == []): # this cant be iguess BUT IT HAPPENS ON NOT FOUND SEARCHES 
+				print("YES THIS IS THE FOURN")
+		elif val == "":
 			current_names = default_names
 		else:
 			# search the names and find the matching ones !
@@ -75,25 +102,15 @@ while True:
 		# user has selected an app !
 		sel = values.get("-select-box-")[0]
 		exe_path = programs_list[f'{sel}.lnk']
-		# ! DAMN PERFECT EXAMPLE OF BLOCKING !
-		# sg.popup(f"opening {sel} !\n{exe_path}!")
-		# ? show app icon=base64_icon_str ?
-		sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
-		# ! how do i make this think non blocking
-		# p = Process(target=sg.SystemTray.notify, args=[f"opening {sel}", exe_path])
-		# p.start()
-		process = launch_app(exe_path)
-		process.wait()
-		rt_code = process.poll()
-		if not rt_code == 0:
-			# program did not run correctly !
-			sg.popup(f"Could not open {sel} {rt_code}!\n<check logs for more info>")
-			continue
+		start_app(exe_path)
+
 	elif event == "__TIMEOUT__":
-		pass
+		continue
 	else:
+		update_buffer(event)
 		# keyboard events, usable coz we have set return_keyboard_events=True
-		if len(event) == 1:
+		# idtkink we need the first if statement
+		if len(event) == 1237123788721378: # to prevent `\r` getting caught here
 			window["-out-"].update(value='%s - %s' % (event, ord(event)))
 			# ! ok here we should just add these chars to search bar input & focus it !
 		elif event == "equal:187":
@@ -106,11 +123,41 @@ while True:
 		elif event == "minus:189":
 			size -= 2
 			update_font(f"fixedsys {size}")
+			# sg.show_debugger_popout_window()
+		elif event == "Down:40":
+			# todo: fix badcode
+			if current_names == []:
+				continue
+			val = values.get("app_search_input")
+			print("current_names", current_names)
+			new_names = list(current_names[1:])
+			new_names.insert(len(new_names), current_names[0])
+			current_names = tuple(new_names)
+			scroll_state_names[val] = new_names
+			window["-select-box-"].update(new_names)
+			pass
+		elif event == "Up:38":
+			# todo: fix badcode
+			if current_names == []:
+				# this is for the situation of searches that dont match !
+				continue
+			val = values.get("app_search_input")
+			new_names = list(current_names[:-1])
+			new_names.insert(0, current_names[-1])
+			current_names = tuple(new_names)
+			scroll_state_names[val] = new_names
+			window["-select-box-"].update(new_names)
+			pass
+		elif event == "\r":
+			sel = current_names[0]
+			exe_path = programs_list[f'{sel}.lnk']
+			# launch_app(exe_path)
+			start_app(exe_path)
 		else:
 			# Down:40, Up:38, Left:37, Right:39, MouseWheel:Up, MouseWheel:Down
-			window["-out-"].update(f"{event}")
-		update_buffer(event)
-		window["-out-"].update(f"{buffer}")
+			window["-out-"].update(f"{buffer}")
+			# window["-out-"].update(f"{event}")
+		# print(event)
 		matches = query_buffer([1, 2])
 
 print("EXITING !")
@@ -120,12 +167,16 @@ window.close();
 """
 CHANGELOG
 
-using sg.SystemTray.notify("hello ", "msg") instead of popup
-tried to add key_buffer system to keep keystrokes in memory
-tried to enable dynamically adjusting font size
+
+added stateful scrolling ! but am i even going to use it ?
+	doesnt work on keydown,
+enter to launch the app shown on first no !
+better search
+
 
 to add
 
+elastic search !
 scroll currently_focused_app using Down and Up
 ctrl + `+/-` to adjust font size !
 
