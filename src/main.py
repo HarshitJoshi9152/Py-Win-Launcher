@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import T
+import subprocess
 # from multiprocessing import Process
 # from threading import Thread
 
@@ -18,7 +20,7 @@ default_names = [p.replace(".lnk", "") for p in programs_list.keys() if programs
 
 current_names = default_names.copy()
 
-# val:names_list | WORKS !
+# val:names_list | WORKS ! | WOULD BE BETTER IF THIS WAS JUST VAL:NAME_INDEX
 scroll_state_names = {}
 
 # creating the window
@@ -27,14 +29,27 @@ window = sg.Window("Py-Win-Launcher !",
 									layout,
 									return_keyboard_events=True,
 									font="fixedsys 18",
-									finalize=True
+									finalize=True,
+									location=(320,50),
+									size=(700, 518),
+									resizable=True,
 									# dont use it because then it will always say on top , even whem it makes a popup
 									# keep_on_top=True,
 									)
+# https://pysimplegui.readthedocs.io/en/latest/call%20reference/#window
 # window.use_custom_titlebar
 # window.maximize()
+# window.ding()
 # todo: sg.Window() read all params, finalize, location, font
 # window.TKroot.focus_force() # doesnt work 
+# window.use_custom_titlebar(sg.Text("title bar !"))
+# force_focus
+
+window.bring_to_front()
+# window.get_screen_dimensions(), window.get_screen_size() for the entire screen dimensions!
+# CurrentLocation -> location | now how do i detect motion ?
+# window["-dim-"].update(window.CurrentLocation())
+window["-dim-"].update(f"{window.CurrentLocation()} {window.size}")
 
 buffer = []
 buffer_max_len = 6
@@ -54,15 +69,16 @@ def update_font(font):
 	# for id in elm_ids:
 	# 	window[id].update(window[id].get(), font=font)
 	#! ok so we can only specify font on text nodes !
-	id = "head"
-	window[id].update(window[id].get(), font=font)
+	elm_id = "head"
+	window[elm_id].update(window[elm_id].get(), font=font)
 
 # but this makes the app go not responding !
 def start_app(exe_path):
 	# ! DAMN PERFECT EXAMPLE OF BLOCKING !
 	# sg.popup(f"opening {sel} !\n{exe_path}!")
 	# ? show app icon=base64_icon_str ?
-	sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
+	subprocess.Popen(["python","./notify.py", sel, exe_path])
+	# sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
 	# sg.SystemTray.notify(f"opening {sel}", exe_path)
 	# ! how do i make this think non blocking
 
@@ -129,7 +145,7 @@ while True:
 			if current_names == []:
 				continue
 			val = values.get("app_search_input")
-			print("current_names", current_names)
+			# print("current_names", current_names)
 			new_names = list(current_names[1:])
 			new_names.insert(len(new_names), current_names[0])
 			current_names = tuple(new_names)
@@ -167,23 +183,13 @@ window.close();
 """
 CHANGELOG
 
-
-added stateful scrolling ! but am i even going to use it ?
-	doesnt work on keydown,
-enter to launch the app shown on first no !
-better search
-
+not responding issues fixed !
+startup popup now being shown throught a different process hence non blocking !
+app selection Listbox vert-size decrease !
+window size & location change 
 
 to add
 
 elastic search !
-scroll currently_focused_app using Down and Up
 ctrl + `+/-` to adjust font size !
-
-issues
-
-app launching, showing the notifications and popups are blocking the code execution !
-
-does the window sometimes become not responding ?
-after launching an app ?
 """

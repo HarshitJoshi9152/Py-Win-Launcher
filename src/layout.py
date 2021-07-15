@@ -8,9 +8,10 @@ programs_list = get_all_progs_list()
 names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p] != ""]
 
 layout = [
-	[sg.Text("App launcher !", key="head")],
+	[sg.Text("Location & size :"), sg.Text("", size=(40, 1), key="-dim-")],
+	[sg.Text("App launcher !", key="head"), ],
 	[sg.In(key="app_search_input", enable_events=True)],
-	[sg.Listbox(names, size=(44, len(names)), key='-select-box-', enable_events=True)],
+	[sg.Listbox(names, size=(44, 10), key='-select-box-', enable_events=True)],
 	# [sg.FileBrowse(key="file_name", enable_events=True)],
 	# [sg.Button("OK"), sg.Button("debug")],
 	# [sg.Text('_'*40)], # horizontal_seperator
