@@ -1,4 +1,3 @@
-from sys import winver
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import Window
 from searchable_programs import get_all_progs_list
@@ -10,13 +9,20 @@ names = [p.replace(".lnk", "") for p in programs_list.keys() if programs_list[p]
 layout = [
 	[sg.Text("Location & size :"), sg.Text("", size=(40, 1), key="-dim-")],
 	[sg.Text("App launcher !", key="head"), ],
-	[sg.In(key="app_search_input", enable_events=True)],
+	[sg.In(key="-SEARCH-", enable_events=True)],
+	# ? read more about sg elements & their properties & methods !
+	# * auto_size_text=True (could be useful)
 	[sg.Listbox(names, size=(44, 10), key='-select-box-', enable_events=True)],
+	# * https://pysimplegui.readthedocs.io/en/latest/call%20reference/#listbox-element
+	# * kwargs= select_mode, l.HighlightBackgroundColor , l.HighlightTextColor
 	# [sg.FileBrowse(key="file_name", enable_events=True)],
 	# [sg.Button("OK"), sg.Button("debug")],
 	# [sg.Text('_'*40)], # horizontal_seperator
 	# ? ok so out size is equal to the original text size unless explicity stated
 	[sg.Text("Output :"), sg.Text("", key="-out-", size=(40, 2))],
+	[sg.Combo(names, None, size=(44, 10), text_color="red")]
+	#! i can use the combo element if I can open it always ! i have a way to maintain stateful searches
+	#! and i can scroll it programatically , also theme
 	# [sg.Text("Default value !",size=(40,4), key="debug_log")],
 ]
 
