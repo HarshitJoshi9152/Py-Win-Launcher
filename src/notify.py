@@ -6,5 +6,9 @@ import sys
 # 0 is the name of the file !
 sel = sys.argv[1]
 exe_path = sys.argv[2]
-# sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
 sg.SystemTray.notify(f"opening {sel}", exe_path, fade_in_duration=60)
+
+# sg.popup(f"opening {sel} !\n{exe_path}!")
+# ? show app icon=base64_icon_str ?
+# sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
+# sg.SystemTray.notify(f"opening {sel}", exe_path)

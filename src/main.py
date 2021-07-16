@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import PySimpleGUI as sg
-from PySimpleGUI.PySimpleGUI import T
 import subprocess
 # from multiprocessing import Process
 # from threading import Thread
@@ -12,7 +11,7 @@ sg.theme('darkred')
 # sg.theme_previewer()
 
 from layout import layout
-from searchable_programs import get_all_progs_list, launch_app
+from searchable_programs import get_all_progs_list
 
 programs_list = get_all_progs_list()
 #  currently only showing programs whose exe_paths can be found
@@ -30,8 +29,8 @@ window = sg.Window("Py-Win-Launcher !",
 									return_keyboard_events=True,
 									font="fixedsys 18",
 									finalize=True,
-									# location=(320,50),
-									# size=(700, 518),
+									location=(279, 66),
+									size=(754, 558),
 									resizable=True,
 									# dont use it because then it will always say on top , even whem it makes a popup
 									# keep_on_top=True,
@@ -86,24 +85,10 @@ def update_font(font):
 
 # but this makes the app go not responding !
 def start_app(exe_path):
-	# ! DAMN PERFECT EXAMPLE OF BLOCKING !
-	# sg.popup(f"opening {sel} !\n{exe_path}!")
-	# ? show app icon=base64_icon_str ?
+	# ! DAMN PERFECT EXAMPLE OF BLOCKING ! not anymore
 	subprocess.Popen(["python","./notify.py", sel, exe_path])
-	# sg.SystemTray.notify(f"opening {sel}", exe_path, display_duration_in_ms=300, fade_in_duration=100)
-	# sg.SystemTray.notify(f"opening {sel}", exe_path)
-	# ! how do i make this think non blocking
-
-	# p = Thread(target=sg.SystemTray.notify, args=[f"opening {sel}", exe_path])
-	# p.start()
-	
-	process = launch_app(exe_path)
-	process.wait()
-	rt_code = process.poll()
-	if not rt_code == 0:
-		# program did not run correctly !
-		sg.popup(f"Could not open {sel} {rt_code}!\n<check logs for more info>")
-
+	# def start_app -> ./start_app.py which launches the app using Popen
+	subprocess.Popen(["python","./start_app.py", sel, exe_path])
 
 while True:
 	event, values = window.read(33); # is there any advantage to using timeout ?
@@ -189,15 +174,17 @@ while True:
 			start_app(exe_path)
 		# ? change cursor icon on scroll lol
 		# elif event == "MouseWheel:Down":
-		# 	cursorIndex += 1
-		# 	cursor = cursors[cursorIndex % len(cursors)]
-		# 	window.set_cursor(cursor)
-		# 	window["-dim-"].update(f"{window.CurrentLocation()} {window.size} {cursor}")
+		# 	# cursorIndex += 1
+		# 	# cursor = cursors[cursorIndex % len(cursors)]
+		# 	# window.set_cursor(cursor)
+		# 	# window["-dim-"].update(f"{window.CurrentLocation()} {window.size} {cursor}")
+		# 	window["-dim-"].update(f"{window.CurrentLocation()} {window.size}")
 		# elif event == "MouseWheel:Up":
-		# 	cursorIndex -= 1
-		# 	cursor = cursors[cursorIndex % len(cursors)]
-		# 	window.set_cursor(cursor)
-		# 	window["-dim-"].update(f"{window.CurrentLocation()} {window.size} {cursor}")
+		# 	# cursorIndex -= 1
+		# 	# cursor = cursors[cursorIndex % len(cursors)]
+		# 	# window.set_cursor(cursor)
+		# 	# window["-dim-"].update(f"{window.CurrentLocation()} {window.size} {cursor}")
+		# 	window["-dim-"].update(f"{window.CurrentLocation()} {window.size}")
 		else:
 			# Down:40, Up:38, Left:37, Right:39, MouseWheel:Up, MouseWheel:Down
 			window["-out-"].update(f"{buffer}")
@@ -212,11 +199,10 @@ window.close();
 """
 CHANGELOG
 
-highlighting works without any need of an event trigger.
-changed cursor to hand2 for ListBox
-native scrolling fixed !
-
--------------------------------- 
+refactored some code
+changed window size, location
+fixed the blocking app launching call,
+now using ./start_app.py as a subprocess
 
 to add
 
@@ -233,18 +219,5 @@ should i remove the onClick and add multiple selection option and highlighting a
 
 ISSUES
 
-WAIT WHAT ARE 2 WINDOWS BEING LAUNCHED ?
-ALSO NOT RESPONDING BUG IS HERE !
-	BETTER THAN BEFORE BUT STILL A BUG WITH MANY APPS !
-	IT LAGS WHENEVER I START SOMETHING THAT TAKES A BIT MORE TIME TO LAUNCH
-	IT GOES NOT RESPONDING, FOR SOMETIME 
-
-	WAIT TRY INTERACTING WITH IT IMMEDIATELY AFTER LAUNCHING AN APP
-		YA ITS FEARFUL ACT
-	ALSO TIMEOUT DOESNT HELP LMAO !
-
-	WAIT SOMETIMES ITS BECAUSE OF THE APP THAT WE ARE TRYING TO START,
-	COZ WE ARE WAITING FOR IT YES !!!! THAT MUST BE IT
-
-	maybe not, maybe some times it just doesnt return until the app ends !
+we can get stuck in a fool's loop if we keep on pressing enter on error popups
 """

@@ -55,34 +55,8 @@ def get_all_progs_list():
 					# print(type(error)) -> <class 'OSError'> | how to people handle these logs ? like how do you get to know if its atually a string, tuple or a dict ???
 	return lst
 
-def launch_app(path):
-	"""launches the exe whose path is provided
-		 returns <subprocess.Popen object>
-		 & uses `subprocess.Popen`
-	Args:
-			path (src): path of exe to be launched
-	"""
-
-	#!well os.system returns the code on first try so maybe try that ? BUT THERE IS AN UGLY NOT WORKING MSG 
-	#! MAYBE WE DONT HAVE TO IMPLEMENT THE MSG OURSELF LMAO !
-
-	# * use subprocess.Popen or os.system os.startfile !
-	#? this needs path of a exe file ! RETURNS <subprocess.Popen object>
-	# using shell=True to not allow launcher to close the app once opened !
-	cli = [path];
-	# if i say shell=True i will see the logs in the shell window when using launcher.py
-	return subprocess.Popen(cli, shell=True)
-	# killing the shell that spawns the process | NOT
-	# process.kill(); ok so now .kill kills it ? ig it happens when its a terminal command not an exe ? idk
-	#Attributes:
-	#|      stdin, stdout, stderr, pid, returncode
-	#Methods:
-	#|			kill, terminate, communicate, send_signal, poll
-
 if __name__ == "__main__":
 	# first arg is name of file !
 	if sys.argv[1] == "test":
 		print("testing !")
 		print(get_all_progs_list())
-		# p = launch_app(R"C:\Program Files\Parsec\parsecd.exe")
-		# print(p)
